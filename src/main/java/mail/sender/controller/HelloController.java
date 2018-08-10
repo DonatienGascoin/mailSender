@@ -17,4 +17,10 @@ public class HelloController {
         return "Greetings from Spring Boot!\n" +  labels;
     }
 
+    @RequestMapping("/send")
+    public String sendBasicMail() {
+        mail.sendMessageText();
+        return "Mail sent";
+    }
+
 }

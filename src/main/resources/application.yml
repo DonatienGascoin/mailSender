@@ -1,0 +1,25 @@
+server:
+  port: 8081
+  servlet:
+    contextPath: /mail
+
+spring:
+  profiles:
+    active: dev
+  # Prod Log level
+logging:
+  level:
+    org:
+      springframework.web: INFO
+      hibernate: ERROR
+    guru:
+      springframework:
+        controllers: ERROR
+  file: logs/mailSender.log
+
+# Local Log JDBC bind parameter runtime arguments
+log4j:
+  logger:
+    org:
+      hibernate:
+        type: trace

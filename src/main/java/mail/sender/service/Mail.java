@@ -10,6 +10,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.Base64;
+import com.google.api.client.util.Lists;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
@@ -52,7 +53,7 @@ public class Mail {
      * Global instance of the scopes required by this quickstart.
      * If modifying these scopes, delete your previously saved credentials/ folder.
      */
-    private static final List<String> SCOPES = Collections.singletonList(GmailScopes.GMAIL_LABELS);
+    private static final List<String> SCOPES = Lists.newArrayList(GmailScopes.all());
     private static final String CLIENT_SECRET_DIR = "/client_secret.json";
 
     /**
@@ -86,7 +87,7 @@ public class Mail {
      * @return the MimeMessage to be used to send email
      * @throws com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException
      */
-    public MimeMessage createEmail(String to, String from, String subject, String bodyText)
+    public MimeMessage createEmailContent(String to, String from, String subject, String bodyText)
             throws MessagingException {
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);
@@ -176,21 +177,24 @@ public class Mail {
             throws MessagingException, IOException {
         Message message = createMessageWithEmail(emailContent);
         message = service.users().messages().send(userId, message).execute();
-        System.out.println("Message id: " + message.getId());
-        System.out.println(message.toPrettyString());
         return message;
     }
 
-    public void sendMessageText(){
+    public String sendMessageText(){
         try {
             Gmail gService = getGmailService();
 
-            MimeMessage mail = createEmail("donatien.gascoin@gmail.com", "RV Service <rv.service71@gmail.com>", "Test java mail", "Bonjour\n Je test un mail basique");
+            MimeMessage mail = createEmailContent("donatien.gascoin@gmail.com", "RV Service <rv.service71@gmail.com>", "Test java mail", "Bonjour\n Je test un mail basique");
+            Message m =sendMessage(gService,"me",mail);
 
-            createMessageWithEmail(mail);
-
+            log.info("---------- Message sent ----------");
+            log.info("Mail id: " + m.getId());
+            log.info("Mail status: " + m.getLabelIds());
+            log.info("----------------------------------");
+            return m.toPrettyString();
         } catch (Exception e) {
             log.log(Level.SEVERE, "Error !", e);
+            return "errror";
         }
     }
 
@@ -198,8 +202,7 @@ public class Mail {
         try {
             Gmail gService = getGmailService();
 
-            MimeMessage mail = createEmail("donatien.gascoin@gmail.com", "RV Service <rv.service71@gmail.com>", "Test java mail", "Bonjour\n Je test un mail basique");
-            createEmailWithAttachment("donatien.gascoin@gmail.com", "RV Service <rv.service71@gmail.com>", "Test java mail", "Bonjour\n Je test un mail basique avec une pièce jointe.", );
+            MimeMessage mail = createEmailWithAttachment("donatien.gascoin@gmail.com", "RV Service <rv.service71@gmail.com>", "Test java mail", "Bonjour\n Je test un mail basique avec une pièce jointe.", );
 
             createMessageWithEmail(mail);
 
